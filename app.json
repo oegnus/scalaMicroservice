@@ -1,0 +1,6 @@
+{
+  "name": "Example project number 1",
+  "description": "Example project from Iterators activator.",
+  "website": "https://typesafe.com/activator/template/akka-http-microservice",
+  "success_url": "/list"
+}

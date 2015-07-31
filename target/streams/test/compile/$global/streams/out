@@ -1,0 +1,85 @@
+[0m[[0mdebug[0m] [0mThe pl.bitgrind.messages.Service source file has the following implicit definitions changed:[0m
+[0m[[0mdebug[0m] [0m	responseFormat, errorFormat.[0m
+[0m[[0mdebug[0m] [0mAll member reference dependencies will be considered within this context.[0m
+[0m[[0mdebug[0m] [0mFiles invalidated by inheriting from (external) pl.bitgrind.messages.Service: Set(/home/oegnus/Projects/iterato.rs/thirdTry/src/test/scala/ServiceSpec.scala); now invalidating by inheritance (internally).[0m
+[0m[[0mdebug[0m] [0mInvalidating (transitively) by inheritance from /home/oegnus/Projects/iterato.rs/thirdTry/src/test/scala/ServiceSpec.scala...[0m
+[0m[[0mdebug[0m] [0mInitial set of included nodes: Set(/home/oegnus/Projects/iterato.rs/thirdTry/src/test/scala/ServiceSpec.scala)[0m
+[0m[[0mdebug[0m] [0mInvalidated by transitive inheritance dependency: Set(/home/oegnus/Projects/iterato.rs/thirdTry/src/test/scala/ServiceSpec.scala)[0m
+[0m[[0mdebug[0m] [0mGetting direct dependencies of all sources transitively invalidated by inheritance.[0m
+[0m[[0mdebug[0m] [0mGetting sources that directly depend on (external) pl.bitgrind.messages.Service.[0m
+[0m[[0mdebug[0m] [0mThe following member ref dependencies of pl.bitgrind.messages.Service are invalidated:[0m
+[0m[[0mdebug[0m] [0m	/home/oegnus/Projects/iterato.rs/thirdTry/src/test/scala/ServiceSpec.scala[0m
+[0m[[0mdebug[0m] [0mThe pl.bitgrind.messages.ServiceResponse source file has the following implicit definitions changed:[0m
+[0m[[0mdebug[0m] [0m	responseFormat, errorFormat.[0m
+[0m[[0mdebug[0m] [0mAll member reference dependencies will be considered within this context.[0m
+[0m[[0mdebug[0m] [0mFiles invalidated by inheriting from (external) pl.bitgrind.messages.ServiceResponse: Set(); now invalidating by inheritance (internally).[0m
+[0m[[0mdebug[0m] [0mGetting direct dependencies of all sources transitively invalidated by inheritance.[0m
+[0m[[0mdebug[0m] [0mGetting sources that directly depend on (external) pl.bitgrind.messages.ServiceResponse.[0m
+[0m[[0mdebug[0m] [0mThe following member ref dependencies of pl.bitgrind.messages.ServiceResponse are invalidated:[0m
+[0m[[0mdebug[0m] [0m	/home/oegnus/Projects/iterato.rs/thirdTry/src/test/scala/ServiceSpec.scala[0m
+[0m[[0mdebug[0m] [0mThe pl.bitgrind.messages.ServiceResponse$ source file has the following implicit definitions changed:[0m
+[0m[[0mdebug[0m] [0m	responseFormat, errorFormat.[0m
+[0m[[0mdebug[0m] [0mAll member reference dependencies will be considered within this context.[0m
+[0m[[0mdebug[0m] [0mFiles invalidated by inheriting from (external) pl.bitgrind.messages.ServiceResponse$: Set(); now invalidating by inheritance (internally).[0m
+[0m[[0mdebug[0m] [0mGetting direct dependencies of all sources transitively invalidated by inheritance.[0m
+[0m[[0mdebug[0m] [0mGetting sources that directly depend on (external) pl.bitgrind.messages.ServiceResponse$.[0m
+[0m[[0mdebug[0m] [0mThe following member ref dependencies of pl.bitgrind.messages.ServiceResponse$ are invalidated:[0m
+[0m[[0mdebug[0m] [0m	/home/oegnus/Projects/iterato.rs/thirdTry/src/test/scala/ServiceSpec.scala[0m
+[0m[[0mdebug[0m] [0mThe pl.bitgrind.messages.Protocols source file has the following implicit definitions changed:[0m
+[0m[[0mdebug[0m] [0m	responseFormat, errorFormat.[0m
+[0m[[0mdebug[0m] [0mAll member reference dependencies will be considered within this context.[0m
+[0m[[0mdebug[0m] [0mFiles invalidated by inheriting from (external) pl.bitgrind.messages.Protocols: Set(); now invalidating by inheritance (internally).[0m
+[0m[[0mdebug[0m] [0mGetting direct dependencies of all sources transitively invalidated by inheritance.[0m
+[0m[[0mdebug[0m] [0mGetting sources that directly depend on (external) pl.bitgrind.messages.Protocols.[0m
+[0m[[0mdebug[0m] [0mThe following member ref dependencies of pl.bitgrind.messages.Protocols are invalidated:[0m
+[0m[[0mdebug[0m] [0m	/home/oegnus/Projects/iterato.rs/thirdTry/src/test/scala/ServiceSpec.scala[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mInitial source changes: [0m
+[0m[[0mdebug[0m] [0m	removed:Set(/home/oegnus/Projects/iterato.rs/thirdTry/src/test/scala/ServiceSpec.scala)[0m
+[0m[[0mdebug[0m] [0m	added: Set(/home/oegnus/Projects/iterato.rs/exercise1/src/test/scala/ServiceSpec.scala)[0m
+[0m[[0mdebug[0m] [0m	modified: Set()[0m
+[0m[[0mdebug[0m] [0mRemoved products: Set()[0m
+[0m[[0mdebug[0m] [0mExternal API changes: API Changes: Set(NamesChange(pl.bitgrind.messages.Service,ModifiedNames(regularNames = , implicitNames = responseFormat, errorFormat)), NamesChange(pl.bitgrind.messages.ServiceResponse,ModifiedNames(regularNames = , implicitNames = responseFormat, errorFormat)), NamesChange(pl.bitgrind.messages.ServiceResponse$,ModifiedNames(regularNames = , implicitNames = responseFormat, errorFormat)), NamesChange(pl.bitgrind.messages.Protocols,ModifiedNames(regularNames = , implicitNames = responseFormat, errorFormat)))[0m
+[0m[[0mdebug[0m] [0mModified binary dependencies: Set()[0m
+[0m[[0mdebug[0m] [0mInitial directly invalidated sources: Set(/home/oegnus/Projects/iterato.rs/thirdTry/src/test/scala/ServiceSpec.scala, /home/oegnus/Projects/iterato.rs/exercise1/src/test/scala/ServiceSpec.scala)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mSources indirectly invalidated by:[0m
+[0m[[0mdebug[0m] [0m	product: Set()[0m
+[0m[[0mdebug[0m] [0m	binary dep: Set()[0m
+[0m[[0mdebug[0m] [0m	external source: Set(/home/oegnus/Projects/iterato.rs/thirdTry/src/test/scala/ServiceSpec.scala)[0m
+[0m[[0mdebug[0m] [0mAll initially invalidated sources: Set(/home/oegnus/Projects/iterato.rs/thirdTry/src/test/scala/ServiceSpec.scala, /home/oegnus/Projects/iterato.rs/exercise1/src/test/scala/ServiceSpec.scala)[0m
+[0m[[0mdebug[0m] [0mRecompiling all 1 sources: invalidated sources (2) exceeded 50.0% of all sources[0m
+[0m[[0minfo[0m] [0mCompiling 1 Scala source to /home/oegnus/Projects/iterato.rs/exercise1/target/scala-2.11/test-classes...[0m
+[0m[[0mdebug[0m] [0mGetting compiler-interface from component compiler for Scala 2.11.5[0m
+[0m[[0mdebug[0m] [0mGetting compiler-interface from component compiler for Scala 2.11.5[0m
+[0m[[0mdebug[0m] [0mRunning cached compiler 10e85520, interfacing (CompilerInterface) with Scala compiler version 2.11.5[0m
+[0m[[0mdebug[0m] [0mCalling Scala compiler with arguments  (CompilerInterface):[0m
+[0m[[0mdebug[0m] [0m	-unchecked[0m
+[0m[[0mdebug[0m] [0m	-deprecation[0m
+[0m[[0mdebug[0m] [0m	-encoding[0m
+[0m[[0mdebug[0m] [0m	utf8[0m
+[0m[[0mdebug[0m] [0m	-bootclasspath[0m
+[0m[[0mdebug[0m] [0m	/usr/lib/jvm/java-8-oracle/jre/lib/resources.jar:/usr/lib/jvm/java-8-oracle/jre/lib/rt.jar:/usr/lib/jvm/java-8-oracle/jre/lib/sunrsasign.jar:/usr/lib/jvm/java-8-oracle/jre/lib/jsse.jar:/usr/lib/jvm/java-8-oracle/jre/lib/jce.jar:/usr/lib/jvm/java-8-oracle/jre/lib/charsets.jar:/usr/lib/jvm/java-8-oracle/jre/lib/jfr.jar:/usr/lib/jvm/java-8-oracle/jre/classes:/opt/activator-1.3.4/repository/org.scala-lang/scala-library/2.11.5/jars/scala-library.jar[0m
+[0m[[0mdebug[0m] [0m	-classpath[0m
+[0m[[0mdebug[0m] [0m	/home/oegnus/Projects/iterato.rs/exercise1/target/scala-2.11/test-classes:/home/oegnus/Projects/iterato.rs/exercise1/target/scala-2.11/classes:/home/oegnus/.ivy2/cache/com.typesafe.akka/akka-actor_2.11/jars/akka-actor_2.11-2.3.10.jar:/home/oegnus/.ivy2/cache/com.typesafe/config/bundles/config-1.2.1.jar:/home/oegnus/.ivy2/cache/com.typesafe.akka/akka-stream-experimental_2.11/jars/akka-stream-experimental_2.11-1.0-RC2.jar:/opt/activator-1.3.4/repository/org.reactivestreams/reactive-streams/1.0.0/jars/reactive-streams.jar:/home/oegnus/.ivy2/cache/com.typesafe.akka/akka-http-core-experimental_2.11/jars/akka-http-core-experimental_2.11-1.0-RC2.jar:/home/oegnus/.ivy2/cache/com.typesafe.akka/akka-parsing-experimental_2.11/jars/akka-parsing-experimental_2.11-1.0-RC2.jar:/home/oegnus/.ivy2/cache/com.typesafe.akka/akka-http-scala-experimental_2.11/jars/akka-http-scala-experimental_2.11-1.0-RC2.jar:/home/oegnus/.ivy2/cache/com.typesafe.akka/akka-http-spray-json-experimental_2.11/jars/akka-http-spray-json-experimental_2.11-1.0-RC2.jar:/home/oegnus/.ivy2/cache/io.spray/spray-json_2.11/bundles/spray-json_2.11-1.3.1.jar:/home/oegnus/.ivy2/cache/com.typesafe.akka/akka-http-testkit-scala-experimental_2.11/jars/akka-http-testkit-scala-experimental_2.11-1.0-RC2.jar:/home/oegnus/.ivy2/cache/com.typesafe.akka/akka-testkit_2.11/jars/akka-testkit_2.11-2.3.10.jar:/home/oegnus/.ivy2/cache/com.typesafe.slick/slick_2.11/bundles/slick_2.11-2.1.0.jar:/home/oegnus/.ivy2/cache/org.slf4j/slf4j-nop/jars/slf4j-nop-1.7.12.jar:/home/oegnus/.ivy2/cache/org.slf4j/slf4j-api/jars/slf4j-api-1.7.12.jar:/opt/activator-1.3.4/repository/com.h2database/h2/1.3.170/jars/h2.jar:/home/oegnus/.ivy2/cache/org.scalaz/scalaz-core_2.11/bundles/scalaz-core_2.11-7.1.3.jar:/home/oegnus/.ivy2/cache/org.scala-lang.modules/scala-parser-combinators_2.11/bundles/scala-parser-combinators_2.11-1.0.4.jar:/home/oegnus/.ivy2/cache/org.scala-lang.modules/scala-xml_2.11/bundles/scala-xml_2.11-1.0.4.jar:/opt/activator-1.3.4/repository/org.scalatest/scalatest_2.11/2.2.4/bundles/scalatest_2.11.jar:/home/oegnus/.ivy2/cache/org.scala-lang/scala-reflect/jars/scala-reflect-2.11.2.jar[0m
+[0m[[0mdebug[0m] [0mScala compilation took 3.038280326 s[0m
+[0m[[0mdebug[0m] [0mInvalidating /home/oegnus/Projects/iterato.rs/exercise1/src/test/scala/ServiceSpec.scala...[0m
+[0m[[0mdebug[0m] [0mInvalidating (transitively) by inheritance from /home/oegnus/Projects/iterato.rs/exercise1/src/test/scala/ServiceSpec.scala...[0m
+[0m[[0mdebug[0m] [0mInitial set of included nodes: Set(/home/oegnus/Projects/iterato.rs/exercise1/src/test/scala/ServiceSpec.scala)[0m
+[0m[[0mdebug[0m] [0mInvalidated by transitive inheritance dependency: Set(/home/oegnus/Projects/iterato.rs/exercise1/src/test/scala/ServiceSpec.scala)[0m
+[0m[[0mdebug[0m] [0mThe /home/oegnus/Projects/iterato.rs/exercise1/src/test/scala/ServiceSpec.scala source file has the following implicit definitions changed:[0m
+[0m[[0mdebug[0m] [0m	UnitJsonFormat, convertToStringMustWrapper, listFormat, convertToStringCanWrapper, vectorFormat, system, RootJsObjectFormat, BooleanJsonFormat, responseFormat, WithTransformation, setFormat, RootJsArrayFormat, messagePatchFormat, convertToAnyShouldWrapper, JsValueFormat, convertNumericToPlusOrMinusWrapper, LongJsonFormat, tuple1Format, convertToEqualizer, indexedSeqFormat, optionFormat, linearSeqFormat, convertToInAndIgnoreMethodsAfterTaggedAs, WithTransformerConcatenation, SymbolJsonFormat, tuple5Format, shorthandSharedTestRegistrationFunction, tuple3Format, immLinearSeqFormat, header2AddHeader, tuple7Format, messageFormat, InjectIntoRequestTransformer, immSetFormat, eitherFormat, CharJsonFormat, BigDecimalJsonFormat, ShortJsonFormat, tuple6Format, StringJsonFormat, arrayFormat, defaultHost, convertToRegexWrapper, immIterableFormat, unconstrainedEquality, ByteJsonFormat, materializer, tuple2Format, immIndexedSeqFormat, injectIntoRoute, convertToInAndIgnoreMethods, convertToStringShouldWrapper, convertSymbolToHavePropertyMatcherGenerator, executor, immSeqFormat, tuple4Format, FloatJsonFormat, shorthandTestRegistrationFunction, iterableFormat, IntJsonFormat, WithTransformation2, DoubleJsonFormat, mapFormat, seqFormat, BigIntJsonFormat.[0m
+[0m[[0mdebug[0m] [0mAll member reference dependencies will be considered within this context.[0m
+[0m[[0mdebug[0m] [0mInvalidating /home/oegnus/Projects/iterato.rs/thirdTry/src/test/scala/ServiceSpec.scala...[0m
+[0m[[0mdebug[0m] [0mInvalidating (transitively) by inheritance from /home/oegnus/Projects/iterato.rs/thirdTry/src/test/scala/ServiceSpec.scala...[0m
+[0m[[0mdebug[0m] [0mInitial set of included nodes: Set(/home/oegnus/Projects/iterato.rs/thirdTry/src/test/scala/ServiceSpec.scala)[0m
+[0m[[0mdebug[0m] [0mInvalidated by transitive inheritance dependency: Set(/home/oegnus/Projects/iterato.rs/thirdTry/src/test/scala/ServiceSpec.scala)[0m
+[0m[[0mdebug[0m] [0mThe /home/oegnus/Projects/iterato.rs/thirdTry/src/test/scala/ServiceSpec.scala source file has the following implicit definitions changed:[0m
+[0m[[0mdebug[0m] [0m	UnitJsonFormat, convertToStringMustWrapper, listFormat, convertToStringCanWrapper, vectorFormat, system, RootJsObjectFormat, BooleanJsonFormat, WithTransformation, setFormat, RootJsArrayFormat, messagePatchFormat, convertToAnyShouldWrapper, JsValueFormat, convertNumericToPlusOrMinusWrapper, LongJsonFormat, tuple1Format, convertToEqualizer, indexedSeqFormat, optionFormat, linearSeqFormat, convertToInAndIgnoreMethodsAfterTaggedAs, WithTransformerConcatenation, SymbolJsonFormat, tuple5Format, shorthandSharedTestRegistrationFunction, tuple3Format, immLinearSeqFormat, errorFormat, header2AddHeader, tuple7Format, messageFormat, InjectIntoRequestTransformer, immSetFormat, eitherFormat, CharJsonFormat, BigDecimalJsonFormat, ShortJsonFormat, tuple6Format, StringJsonFormat, arrayFormat, defaultHost, convertToRegexWrapper, immIterableFormat, unconstrainedEquality, ByteJsonFormat, materializer, tuple2Format, immIndexedSeqFormat, injectIntoRoute, convertToInAndIgnoreMethods, convertToStringShouldWrapper, convertSymbolToHavePropertyMatcherGenerator, executor, immSeqFormat, tuple4Format, FloatJsonFormat, shorthandTestRegistrationFunction, iterableFormat, IntJsonFormat, WithTransformation2, DoubleJsonFormat, mapFormat, seqFormat, BigIntJsonFormat.[0m
+[0m[[0mdebug[0m] [0mAll member reference dependencies will be considered within this context.[0m
+[0m[[0mdebug[0m] [0mNew invalidations:[0m
+[0m[[0mdebug[0m] [0m	Set()[0m
+[0m[[0mdebug[0m] [0mInitial set of included nodes: Set()[0m
+[0m[[0mdebug[0m] [0mPreviously invalidated, but (transitively) depend on new invalidations:[0m
+[0m[[0mdebug[0m] [0m	Set()[0m
+[0m[[0mdebug[0m] [0mAll newly invalidated sources after taking into account (previously) recompiled sources:Set()[0m
