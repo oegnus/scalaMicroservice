@@ -28,7 +28,7 @@ trait Service extends Protocols {
   implicit def executor: ExecutionContextExecutor
   implicit val materializer: FlowMaterializer
 
-  val db: scala.slick.driver.H2Driver.backend.DatabaseDef
+  val db: scala.slick.jdbc.JdbcBackend#DatabaseDef
   def repo: MessageSlick2Repository
   def config: Config
   val logger: LoggingAdapter
