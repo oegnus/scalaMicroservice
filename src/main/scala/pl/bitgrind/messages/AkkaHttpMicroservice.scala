@@ -15,7 +15,8 @@ import spray.json._
 import pl.bitgrind.messages.Messages.Message
 import pl.bitgrind.messages.Messages.MessagePatch
 import pl.bitgrind.messages.Messages.Result
-import pl.bitgrind.messages.Messages.ErrorCode._
+import pl.bitgrind.messages.Messages.VALIDATION
+import pl.bitgrind.messages.Messages.NOT_FOUND
 
 case class ServiceResponse(ok: Boolean, error: Option[String], errors: Option[List[String]], results: Option[List[Message]])
 

@@ -10,11 +10,9 @@ object Messages extends MessagesDb {
   val config = ConfigFactory.load()
   val maxResults = 1 max config.getInt("messages.maxResults")
 
-  object ErrorCode extends Enumeration {
-    type ErrorCode = Value
-    val NOT_FOUND, VALIDATION = Value
-  }
-  import ErrorCode._
+  sealed trait ErrorCode { def name: String }
+  case object NOT_FOUND extends ErrorCode { val name = "NOT_FOUND" }
+  case object VALIDATION extends ErrorCode { val name = "VALIDATION" }
 
   case class Result(error: Option[ErrorCode], errors: Option[List[String]])
 
