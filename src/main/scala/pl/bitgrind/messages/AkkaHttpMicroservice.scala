@@ -17,36 +17,29 @@ import pl.bitgrind.messages.Types.ErrorCode._
 
 case class ServiceResponse(ok: Boolean, error: Option[String], errors: Option[List[String]], results: Option[List[Message]])
 
-trait Responses {
-  def searchResult(messages: List[Message]) = ServiceResponse(ok = true, None, None, Some(messages))
-  def ok(res: Result) = ServiceResponse(ok = true, None, None, None)
-  def err(res: Result) = ServiceResponse(ok = false, Some(res.error.getOrElse("").toString), res.errors, None)
-
-  def withErrorStatus(res: Result): (StatusCode, ServiceResponse) = res.error match {
-    case Some(VALIDATION) => BadRequest -> err(res)
-    case Some(NOT_FOUND) => NotFound -> err(res)
-    case _ => BadRequest -> err(res)
-  }
-
-  def withStatus(result: Either[Result, Result]): (StatusCode, ServiceResponse) = result match {
-    case Right(res) => OK -> ok(res)
-    case Left(err) => withErrorStatus(err)
-  }
-}
-
 trait Protocols extends DefaultJsonProtocol {
   implicit val messageFormat = jsonFormat4(Message)
   implicit val messagePatchFormat = jsonFormat3(MessagePatch)
   implicit val responseFormat = jsonFormat4(ServiceResponse)
 }
 
-trait Service extends Protocols with Responses {
+trait Service extends Protocols {
   implicit val system: ActorSystem
   implicit def executor: ExecutionContextExecutor
   implicit val materializer: FlowMaterializer
 
   def config: Config
   val logger: LoggingAdapter
+
+  def ok(res: Result) = ServiceResponse(ok = true, None, None, None)
+  def err(res: Result) = ServiceResponse(ok = false, Some(res.error.getOrElse("").toString), res.errors, None)
+
+  def withErrorStatus(res: Result): (StatusCode, ServiceResponse) =
+    res.error match {
+      case Some(VALIDATION) => BadRequest -> err(res)
+      case Some(NOT_FOUND) => NotFound -> err(res)
+      case _ => BadRequest -> err(res)
+    }
 
   val routes = {
     logRequestResult("akka-http-microservice") {
@@ -62,38 +55,42 @@ trait Service extends Protocols with Responses {
           } ~
           delete {
             complete {
-              withStatus(
-                Messages.remove(id)
-              )
+              Messages.remove(id) match {
+                case Right(res) => ok(res)
+                case Left(err) => withErrorStatus(err)
+              }
             }
           } ~
           (patch & entity(as[MessagePatch])) { messagePatch =>
             complete {
-              withStatus(
-                Messages.patch(id, messagePatch)
-              )
+              Messages.patch(id, messagePatch) match {
+                case Right(res) => ok(res)
+                case Left(err) => withErrorStatus(err)
+              }
             }
           } ~
           (put & entity(as[Message])) { message =>
             complete {
-              withStatus(
-                Messages.update(id, message)
-              )
+              Messages.update(id, message) match {
+                case Right(res) => ok(res)
+                case Left(err) => withErrorStatus(err)
+              }
             }
           }
         } ~
         (post & entity(as[Message])) { message =>
           complete {
-            withStatus(
-              Messages.add(message)
-            )
+            Messages.add(message) match {
+              case Right(res) => ok(res)
+              case Left(err) => withErrorStatus(err)
+            }
           }
         } ~
         get {
           parameters("el".as[Int], "before".as[Int]?, "after".as[Int]?) { (el, before, after) =>
             complete {
               Messages.list(el, before, after) match {
-                case Right(messages) => searchResult(messages)
+                case Right(messages) => ServiceResponse(ok = true, None, None, Some(messages))
                 case Left(error) => withErrorStatus(error)
               }
             }
@@ -101,7 +98,7 @@ trait Service extends Protocols with Responses {
         } ~
         get {
           complete {
-            searchResult(Messages.list)
+            ServiceResponse(ok = true, None, None, Some(Messages.list))
           }
         }
       }
