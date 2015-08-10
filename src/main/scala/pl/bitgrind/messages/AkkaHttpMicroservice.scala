@@ -12,12 +12,8 @@ import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import scala.concurrent.ExecutionContextExecutor
 import spray.json._
-import pl.bitgrind.messages.Messages.Message
-import pl.bitgrind.messages.Messages.UnpersistedMessage
-import pl.bitgrind.messages.Messages.MessagePatch
-import pl.bitgrind.messages.Messages.Result
-import pl.bitgrind.messages.Messages.VALIDATION
-import pl.bitgrind.messages.Messages.NOT_FOUND
+import scala.slick.driver.H2Driver.simple._
+import pl.bitgrind.messages.Messages._
 
 case class ServiceResponse(ok: Boolean, error: Option[String], errors: Option[List[String]], results: Option[List[Message]])
 
@@ -33,6 +29,7 @@ trait Service extends Protocols {
   implicit def executor: ExecutionContextExecutor
   implicit val materializer: FlowMaterializer
 
+  def repo: MessageRepository
   def config: Config
   val logger: LoggingAdapter
 
@@ -52,7 +49,7 @@ trait Service extends Protocols {
         path(IntNumber) { id =>
           get {
             complete {
-              Messages.find(id) match {
+              repo.find(id) match {
                 case Right(msg) => msg
                 case Left(err) => withErrorStatus(err)
               }
@@ -60,7 +57,7 @@ trait Service extends Protocols {
           } ~
           delete {
             complete {
-              Messages.remove(id) match {
+              repo.remove(id) match {
                 case Right(res) => ok(res)
                 case Left(err) => withErrorStatus(err)
               }
@@ -68,7 +65,7 @@ trait Service extends Protocols {
           } ~
           (patch & entity(as[MessagePatch])) { messagePatch =>
             complete {
-              Messages.patch(id, messagePatch) match {
+              repo.patch(id, messagePatch) match {
                 case Right(res) => ok(res)
                 case Left(err) => withErrorStatus(err)
               }
@@ -76,7 +73,7 @@ trait Service extends Protocols {
           } ~
           (put & entity(as[UnpersistedMessage])) { message =>
             complete {
-              Messages.update(id, message) match {
+              repo.update(id, message) match {
                 case Right(res) => ok(res)
                 case Left(err) => withErrorStatus(err)
               }
@@ -85,7 +82,7 @@ trait Service extends Protocols {
         } ~
         (post & entity(as[UnpersistedMessage])) { message =>
           complete {
-            Messages.add(message) match {
+            repo.add(message) match {
               case Right(res) => ok(res)
               case Left(err) => withErrorStatus(err)
             }
@@ -94,7 +91,7 @@ trait Service extends Protocols {
         get {
           parameters("el".as[Int], "before".as[Int]?, "after".as[Int]?) { (el, before, after) =>
             complete {
-              Messages.list(el, before, after) match {
+              repo.list(el, before, after) match {
                 case Right(messages) => ServiceResponse(ok = true, None, None, Some(messages))
                 case Left(error) => withErrorStatus(error)
               }
@@ -103,7 +100,7 @@ trait Service extends Protocols {
         } ~
         get {
           complete {
-            ServiceResponse(ok = true, None, None, Some(Messages.list))
+            ServiceResponse(ok = true, None, None, Some(repo.list))
           }
         }
       }
@@ -118,6 +115,10 @@ object AkkaHttpMicroservice extends App with Service {
 
   override val config = ConfigFactory.load()
   override val logger = Logging(system, getClass)
+
+  val db = Database.forURL("jdbc:h2:mem:messages", driver = "org.h2.Driver")
+  val maxResults = 1 max config.getInt("messages.maxResults")
+  override val repo = new MessageSlick2Repository(db, maxResults)
 
   Http().bindAndHandle(routes, config.getString("http.interface"), config.getInt("http.port"))
 }
