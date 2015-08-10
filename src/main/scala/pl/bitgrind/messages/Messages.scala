@@ -3,12 +3,12 @@ package pl.bitgrind.messages
 import scala.slick.driver.H2Driver.simple._
 import com.typesafe.config.ConfigFactory
 
-object Types {
-  type UserId = Int
-  type MessageId = Int
+object Messages extends MessagesDb {
+  import scalaz._
+  import MessageValidation._
 
-  case class Message(id: Option[MessageId], toUser: UserId, fromUser: UserId, content: String)
-  case class MessagePatch(toUser: Option[UserId], fromUser: Option[UserId], content: Option[String])
+  val config = ConfigFactory.load()
+  val maxResults = 1 max config.getInt("messages.maxResults")
 
   object ErrorCode extends Enumeration {
     type ErrorCode = Value
@@ -21,15 +21,6 @@ object Types {
   def ok = Right(Result(None, None))
   def errNotFound = Left(Result(Some(NOT_FOUND), None))
   def errValidation(validationErrors: List[String]) = Left(Result(Some(VALIDATION), Some(validationErrors)))
-}
-
-object Messages extends MessagesDb {
-  import scalaz._
-  import Types._
-  import MessageValidation._
-
-  val config = ConfigFactory.load()
-  val maxResults = 1 max config.getInt("messages.maxResults")
 
   def find(msgId: MessageId): Either[Result, Message] =
     messages.filter(_.id === msgId).firstOption match {
@@ -108,7 +99,11 @@ object Messages extends MessagesDb {
 }
 
 trait MessagesDb {
-  import Types._
+  type UserId = Int
+  type MessageId = Int
+
+  case class Message(id: Option[MessageId], toUser: UserId, fromUser: UserId, content: String)
+  case class MessagePatch(toUser: Option[UserId], fromUser: Option[UserId], content: Option[String])
 
   class MessagesTable(tag: Tag) extends Table[Message](tag, "MESSAGES") {
     def id = column[MessageId]("MSG_ID", O.PrimaryKey, O.AutoInc)

@@ -1,6 +1,6 @@
 package pl.bitgrind.messages
 
-import pl.bitgrind.messages.Types._
+import pl.bitgrind.messages.Messages._
 
 object MessageValidation {
   import scalaz._

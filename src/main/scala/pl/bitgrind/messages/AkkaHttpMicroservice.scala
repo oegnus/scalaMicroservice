@@ -12,8 +12,10 @@ import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import scala.concurrent.ExecutionContextExecutor
 import spray.json._
-import pl.bitgrind.messages.Types._
-import pl.bitgrind.messages.Types.ErrorCode._
+import pl.bitgrind.messages.Messages.Message
+import pl.bitgrind.messages.Messages.MessagePatch
+import pl.bitgrind.messages.Messages.Result
+import pl.bitgrind.messages.Messages.ErrorCode._
 
 case class ServiceResponse(ok: Boolean, error: Option[String], errors: Option[List[String]], results: Option[List[Message]])
 
