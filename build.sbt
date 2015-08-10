@@ -3,7 +3,7 @@ enablePlugins(JavaAppPackaging)
 name         := """iteratorsExercise1"""
 organization := "pl.bitgrind"
 version      := "1.0"
-scalaVersion := "2.11.5"
+scalaVersion := "2.11.6"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 

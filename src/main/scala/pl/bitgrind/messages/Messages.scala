@@ -52,10 +52,10 @@ object Messages extends MessagesDb {
     ok
   }
 
-  def add(msg: Message) =
+  def add(msg: UnpersistedMessage) =
     validate(msg) match {
       case Success(validMsg) =>
-        messages.insert(validMsg)
+        messages.insert(messageFromUnpersisted(validMsg))
         ok
       case Failure(errors) =>
         errValidation(errors.list)
@@ -86,21 +86,20 @@ object Messages extends MessagesDb {
       case None =>
         errNotFound
     }
-
-  private def patchMessage(msg: Message, patch: MessagePatch): Message =
-    Message(
-      msg.id,
-      patch.toUser.getOrElse(msg.toUser),
-      patch.fromUser.getOrElse(msg.fromUser),
-      patch.content.getOrElse(msg.content)
-    )
 }
 
 trait MessagesDb {
   type UserId = Int
   type MessageId = Int
 
-  case class Message(id: Option[MessageId], toUser: UserId, fromUser: UserId, content: String)
+  trait BaseMessage {
+    def toUser: UserId
+    def fromUser: UserId
+    def content: String
+  }
+  case class Message(id: MessageId, toUser: UserId, fromUser: UserId, content: String) extends BaseMessage
+  case class UnpersistedMessage(toUser: UserId, fromUser: UserId, content: String) extends BaseMessage
+
   case class MessagePatch(toUser: Option[UserId], fromUser: Option[UserId], content: Option[String])
 
   class MessagesTable(tag: Tag) extends Table[Message](tag, "MESSAGES") {
@@ -108,17 +107,33 @@ trait MessagesDb {
     def toUser = column[UserId]("FROM_USER")
     def fromUser = column[UserId]("TO_USER")
     def content = column[String]("CONTENT")
-    def * = (id.?, toUser, fromUser, content) <>(Message.tupled, Message.unapply)
+    def * = (id, toUser, fromUser, content) <>(Message.tupled, Message.unapply)
   }
+
+  def patchMessage(msg: Message, patch: MessagePatch): Message =
+    Message(
+      msg.id,
+      patch.toUser.getOrElse(msg.toUser),
+      patch.fromUser.getOrElse(msg.fromUser),
+      patch.content.getOrElse(msg.content)
+    )
+
+  def messageFromUnpersisted(uMsg: UnpersistedMessage): Message =
+    Message(
+      0,
+      uMsg.toUser,
+      uMsg.fromUser,
+      uMsg.content
+    )
 
   val db = Database.forURL("jdbc:h2:mem:messages", driver = "org.h2.Driver")
   implicit val session: Session = db.createSession()
   val messages = TableQuery[MessagesTable]
   messages.ddl.create
 
-  def loadFixtures(fixtures: Seq[Message]) = {
+  def loadFixtures(fixtures: Seq[UnpersistedMessage]) = {
     messages.ddl.drop
     messages.ddl.create
-    messages ++= fixtures
+    messages ++= fixtures map messageFromUnpersisted
   }
 }

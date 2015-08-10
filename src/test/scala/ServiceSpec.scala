@@ -1,5 +1,6 @@
 import pl.bitgrind.messages._
 import pl.bitgrind.messages.Messages.Message
+import pl.bitgrind.messages.Messages.UnpersistedMessage
 import pl.bitgrind.messages.Messages.MessagePatch
 import akka.event.NoLogging
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
@@ -14,19 +15,19 @@ class ServiceSpec extends FlatSpec with Matchers with ScalatestRouteTest with Se
   override val logger = NoLogging
 
   val okResult = ServiceResponse(ok = true, None, None, None)
-  val validMessage = Message(None, 1, 1, "content")
+  val validMessage = UnpersistedMessage(1, 1, "content")
 
   val fixtures = Seq(
-    Message(None, 1, 2, "pierwszy"),
-    Message(None, 2, 1, "drugi"),
-    Message(None, 2, 1, "trzeci"),
-    Message(None, 3, 4, "czwarty"),
-    Message(None, 2, 1, "piaty"),
-    Message(None, 2, 3, "szosty"),
-    Message(None, 1, 6, "siodmy"),
-    Message(None, 4, 5, "osmy"),
-    Message(None, 2, 1, "dziewiaty"),
-    Message(None, 5, 1, "dziesiaty")
+    UnpersistedMessage(1, 2, "pierwszy"),
+    UnpersistedMessage(2, 1, "drugi"),
+    UnpersistedMessage(2, 1, "trzeci"),
+    UnpersistedMessage(3, 4, "czwarty"),
+    UnpersistedMessage(2, 1, "piaty"),
+    UnpersistedMessage(2, 3, "szosty"),
+    UnpersistedMessage(1, 6, "siodmy"),
+    UnpersistedMessage(4, 5, "osmy"),
+    UnpersistedMessage(2, 1, "dziewiaty"),
+    UnpersistedMessage(5, 1, "dziesiaty")
   )
 
   // GET
@@ -35,7 +36,7 @@ class ServiceSpec extends FlatSpec with Matchers with ScalatestRouteTest with Se
 
     Get(s"/list/1") ~> routes ~> check {
       contentType shouldBe `application/json`
-      responseAs[Message] shouldBe Message(Some(1), 1, 2, "pierwszy")
+      responseAs[Message] shouldBe Message(1, 1, 2, "pierwszy")
     }
   }
 
@@ -54,13 +55,13 @@ class ServiceSpec extends FlatSpec with Matchers with ScalatestRouteTest with Se
     Get(s"/list?el=4&before=1&after=1") ~> routes ~> check {
       val results = responseAs[ServiceResponse].results.getOrElse(List())
       results.length shouldBe 3
-      results.count(_.id == Some(4)) shouldBe 1
+      results.count(_.id == 4) shouldBe 1
     }
 
     Get(s"/list?el=1&before=50&after=1") ~> routes ~> check {
       val results = responseAs[ServiceResponse].results.getOrElse(List())
       results.length shouldBe 2
-      results.count(_.id == Some(1)) shouldBe 1
+      results.count(_.id == 1) shouldBe 1
     }
   }
 
@@ -80,17 +81,17 @@ class ServiceSpec extends FlatSpec with Matchers with ScalatestRouteTest with Se
   }
 
   it should "respond with bad request to posting invalid new message" in {
-    Post(s"/list", Message(None, 0, 1, "content")) ~> routes ~> check {
+    Post(s"/list", UnpersistedMessage(0, 1, "content")) ~> routes ~> check {
       status shouldBe BadRequest
       responseAs[ServiceResponse] shouldBe ServiceResponse(ok = false, Some("VALIDATION"), Some(List("INVALID_USER_ID")), None)
     }
 
-    Post(s"/list", Message(None, 0, 0, "content")) ~> routes ~> check {
+    Post(s"/list", UnpersistedMessage(0, 0, "content")) ~> routes ~> check {
       status shouldBe BadRequest
       responseAs[ServiceResponse] shouldBe ServiceResponse(ok = false, Some("VALIDATION"), Some(List("INVALID_USER_ID", "INVALID_USER_ID")), None)
     }
 
-    Post(s"/list", Message(None, 1, 1, "")) ~> routes ~> check {
+    Post(s"/list", UnpersistedMessage(1, 1, "")) ~> routes ~> check {
       status shouldBe BadRequest
       responseAs[ServiceResponse] shouldBe ServiceResponse(ok = false, Some("VALIDATION"), Some(List("CONTENT_TOO_SHORT")), None)
     }
@@ -100,7 +101,7 @@ class ServiceSpec extends FlatSpec with Matchers with ScalatestRouteTest with Se
   it should "respond to putting new message" in {
     Messages.loadFixtures(fixtures)
 
-    Put(s"/list/1", validMessage) ~> routes ~> check {
+    Put(s"/list/1", Message(1, 1, 1, "content")) ~> routes ~> check {
       status shouldBe OK
       contentType shouldBe `application/json`
       responseAs[ServiceResponse] shouldBe okResult
@@ -125,7 +126,7 @@ class ServiceSpec extends FlatSpec with Matchers with ScalatestRouteTest with Se
 
     Patch(s"/list/1", validPatch) ~> routes ~> check {
       Get(s"/list/1") ~> routes ~> check {
-        responseAs[Message] shouldBe Message(Some(1), 1, 2, "new content")
+        responseAs[Message] shouldBe Message(1, 1, 2, "new content")
       }
     }
   }

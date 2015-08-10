@@ -13,6 +13,7 @@ import com.typesafe.config.ConfigFactory
 import scala.concurrent.ExecutionContextExecutor
 import spray.json._
 import pl.bitgrind.messages.Messages.Message
+import pl.bitgrind.messages.Messages.UnpersistedMessage
 import pl.bitgrind.messages.Messages.MessagePatch
 import pl.bitgrind.messages.Messages.Result
 import pl.bitgrind.messages.Messages.VALIDATION
@@ -22,6 +23,7 @@ case class ServiceResponse(ok: Boolean, error: Option[String], errors: Option[Li
 
 trait Protocols extends DefaultJsonProtocol {
   implicit val messageFormat = jsonFormat4(Message)
+  implicit val unpersistedMessageFormat = jsonFormat3(UnpersistedMessage)
   implicit val messagePatchFormat = jsonFormat3(MessagePatch)
   implicit val responseFormat = jsonFormat4(ServiceResponse)
 }
@@ -81,7 +83,7 @@ trait Service extends Protocols {
             }
           }
         } ~
-        (post & entity(as[Message])) { message =>
+        (post & entity(as[UnpersistedMessage])) { message =>
           complete {
             Messages.add(message) match {
               case Right(res) => ok(res)
