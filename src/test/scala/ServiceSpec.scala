@@ -108,6 +108,15 @@ class ServiceSpec extends FlatSpec with Matchers with ScalatestRouteTest with Se
     }
   }
 
+  it should "respond with error to putting with nonexisting id" in {
+    Messages.loadFixtures(fixtures)
+
+    Put(s"/list/99", UnpersistedMessage(1, 1, "content")) ~> routes ~> check {
+      status shouldBe NotFound
+      responseAs[ServiceResponse] shouldBe ServiceResponse(ok = false, Some("NOT_FOUND"), None, None)
+    }
+  }
+
   // PATCH
   it should "respond to patching message" in {
     Messages.loadFixtures(fixtures)
@@ -117,6 +126,15 @@ class ServiceSpec extends FlatSpec with Matchers with ScalatestRouteTest with Se
       status shouldBe OK
       contentType shouldBe `application/json`
       responseAs[ServiceResponse] shouldBe okResult
+    }
+  }
+
+  it should "respond with error to patching with nonexisting id" in {
+    Messages.loadFixtures(fixtures)
+
+    Patch(s"/list/99", MessagePatch(None, None, None)) ~> routes ~> check {
+      status shouldBe NotFound
+      responseAs[ServiceResponse] shouldBe ServiceResponse(ok = false, Some("NOT_FOUND"), None, None)
     }
   }
 

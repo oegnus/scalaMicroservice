@@ -61,20 +61,21 @@ object Messages extends MessagesDb {
         errValidation(errors.list)
     }
 
-  def update(msgId: MessageId, msg: Message): Either[Result, Result] =
-    updateOrPatch(msgId, Left(msg))
+  def update(msgId: MessageId, msg: UnpersistedMessage): Either[Result, Result] =
+    validate(messageFromUnpersisted(msg)) match {
+      case Success(validMsg) =>
+        messages.filter(_.id === msgId).update(validMsg) match {
+          case 0 => errNotFound
+          case _ => ok
+        }
+      case Failure(errors) =>
+        errValidation(errors.list)
+    }
 
-  def patch(msgId: MessageId, patch: MessagePatch): Either[Result, Result] =
-    updateOrPatch(msgId, Right(patch))
-
-  private def updateOrPatch(msgId: MessageId, msgOrPatch: Either[Message, MessagePatch] ): Either[Result, Result] =
+  def patch(msgId: MessageId, msgPatch: MessagePatch): Either[Result, Result] =
     messages.filter(_.id === msgId).firstOption match {
       case Some(originalMsg) =>
-        val newMsg = msgOrPatch match {
-          case Left(msg) => msg
-          case Right(msgPatch) => patchMessage(originalMsg, msgPatch)
-        }
-        validate(newMsg) match {
+        validate(patchMessage(originalMsg, msgPatch)) match {
           case Success(validMsg) =>
             messages
               .filter(_.id === msgId)

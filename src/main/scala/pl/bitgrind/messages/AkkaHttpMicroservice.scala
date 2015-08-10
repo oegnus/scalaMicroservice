@@ -74,7 +74,7 @@ trait Service extends Protocols {
               }
             }
           } ~
-          (put & entity(as[Message])) { message =>
+          (put & entity(as[UnpersistedMessage])) { message =>
             complete {
               Messages.update(id, message) match {
                 case Right(res) => ok(res)
