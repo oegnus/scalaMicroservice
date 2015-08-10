@@ -1,6 +1,5 @@
 import pl.bitgrind.messages._
 import pl.bitgrind.messages.Messages._
-import scala.slick.driver.H2Driver.simple._
 import akka.event.NoLogging
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import akka.http.scaladsl.model.ContentTypes._
@@ -9,13 +8,23 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import org.scalatest._
 
 class ServiceSpec extends FlatSpec with Matchers with ScalatestRouteTest with Service {
+  import scala.slick.driver.H2Driver.simple._
+  import slick.driver.H2Driver.profile
+
+  val maxResults = 30
+
+  val db = Database.forURL("jdbc:h2:mem:messagesTest;DB_CLOSE_DELAY=-1", driver = "org.h2.Driver")
+  override val repo = new MessageSlick2Repository(new Tables(profile), maxResults)
+  repo.createTable(db.createSession())
+
+  def loadFixtures(fixtures: Seq[UnpersistedMessage]) =
+    db.withSession { implicit session =>
+      repo.loadFixtures(fixtures)
+    }
+
   override def testConfigSource = "akka.loglevel = WARNING"
   override def config = testConfig
   override val logger = NoLogging
-
-  val db = Database.forURL("jdbc:h2:mem:messagesTest", driver = "org.h2.Driver")
-  val maxResults = 30
-  override val repo = new MessageSlick2Repository(db, maxResults)
 
   val okResult = ServiceResponse(ok = true, None, None, None)
   val validMessage = UnpersistedMessage(1, 1, "content")
@@ -35,7 +44,7 @@ class ServiceSpec extends FlatSpec with Matchers with ScalatestRouteTest with Se
 
   // GET
   it should "respond with message" in {
-    repo.loadFixtures(fixtures)
+    loadFixtures(fixtures)
 
     Get(s"/list/1") ~> routes ~> check {
       contentType shouldBe `application/json`
@@ -44,7 +53,7 @@ class ServiceSpec extends FlatSpec with Matchers with ScalatestRouteTest with Se
   }
 
   it should "respond with list of messages" in {
-    repo.loadFixtures(fixtures)
+    loadFixtures(fixtures)
 
     Get(s"/list") ~> routes ~> check {
       contentType shouldBe `application/json`
@@ -53,7 +62,7 @@ class ServiceSpec extends FlatSpec with Matchers with ScalatestRouteTest with Se
   }
 
   it should "use 'before' and 'after' params" in {
-    repo.loadFixtures(fixtures)
+    loadFixtures(fixtures)
 
     Get(s"/list?el=4&before=1&after=1") ~> routes ~> check {
       val results = responseAs[ServiceResponse].results.getOrElse(List())
@@ -70,7 +79,7 @@ class ServiceSpec extends FlatSpec with Matchers with ScalatestRouteTest with Se
 
   // POST
   it should "respond to posting new message" in {
-    repo.loadFixtures(fixtures)
+    loadFixtures(fixtures)
 
     Post(s"/list", validMessage) ~> routes ~> check {
       status shouldBe OK
@@ -102,7 +111,7 @@ class ServiceSpec extends FlatSpec with Matchers with ScalatestRouteTest with Se
 
   // PUT
   it should "respond to putting new message" in {
-    repo.loadFixtures(fixtures)
+    loadFixtures(fixtures)
 
     Put(s"/list/1", Message(1, 1, 1, "content")) ~> routes ~> check {
       status shouldBe OK
@@ -112,7 +121,7 @@ class ServiceSpec extends FlatSpec with Matchers with ScalatestRouteTest with Se
   }
 
   it should "respond with error to putting with nonexisting id" in {
-    repo.loadFixtures(fixtures)
+    loadFixtures(fixtures)
 
     Put(s"/list/99", UnpersistedMessage(1, 1, "content")) ~> routes ~> check {
       status shouldBe NotFound
@@ -122,7 +131,7 @@ class ServiceSpec extends FlatSpec with Matchers with ScalatestRouteTest with Se
 
   // PATCH
   it should "respond to patching message" in {
-    repo.loadFixtures(fixtures)
+    loadFixtures(fixtures)
     val validPatch = MessagePatch(Some(1), None, Some("abcde"))
 
     Patch(s"/list/1", validPatch) ~> routes ~> check {
@@ -133,7 +142,7 @@ class ServiceSpec extends FlatSpec with Matchers with ScalatestRouteTest with Se
   }
 
   it should "respond with error to patching with nonexisting id" in {
-    repo.loadFixtures(fixtures)
+    loadFixtures(fixtures)
 
     Patch(s"/list/99", MessagePatch(None, None, None)) ~> routes ~> check {
       status shouldBe NotFound
@@ -142,7 +151,7 @@ class ServiceSpec extends FlatSpec with Matchers with ScalatestRouteTest with Se
   }
 
   it should "patch message" in {
-    repo.loadFixtures(fixtures)
+    loadFixtures(fixtures)
     val validPatch = MessagePatch(Some(1), None, Some("new content"))
 
     Patch(s"/list/1", validPatch) ~> routes ~> check {
@@ -154,7 +163,7 @@ class ServiceSpec extends FlatSpec with Matchers with ScalatestRouteTest with Se
 
   // DELETE
   it should "respond to deleting message" in {
-    repo.loadFixtures(fixtures)
+    loadFixtures(fixtures)
 
     Delete(s"/list/1") ~> routes ~> check {
       status shouldBe OK

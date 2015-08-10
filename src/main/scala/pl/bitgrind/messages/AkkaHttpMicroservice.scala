@@ -12,7 +12,6 @@ import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import scala.concurrent.ExecutionContextExecutor
 import spray.json._
-import scala.slick.driver.H2Driver.simple._
 import pl.bitgrind.messages.Messages._
 
 case class ServiceResponse(ok: Boolean, error: Option[String], errors: Option[List[String]], results: Option[List[Message]])
@@ -29,7 +28,8 @@ trait Service extends Protocols {
   implicit def executor: ExecutionContextExecutor
   implicit val materializer: FlowMaterializer
 
-  def repo: MessageRepository
+  val db: scala.slick.driver.H2Driver.backend.DatabaseDef
+  def repo: MessageSlick2Repository
   def config: Config
   val logger: LoggingAdapter
 
@@ -49,58 +49,72 @@ trait Service extends Protocols {
         path(IntNumber) { id =>
           get {
             complete {
-              repo.find(id) match {
-                case Right(msg) => msg
-                case Left(err) => withErrorStatus(err)
+              db.withSession { implicit session =>
+                repo.find(id) match {
+                  case Right(msg) => msg
+                  case Left(err) => withErrorStatus(err)
+                }
               }
             }
           } ~
           delete {
             complete {
-              repo.remove(id) match {
-                case Right(res) => ok(res)
-                case Left(err) => withErrorStatus(err)
+              db.withSession { implicit session =>
+                repo.remove(id) match {
+                  case Right(res) => ok(res)
+                  case Left(err) => withErrorStatus(err)
+                }
               }
             }
           } ~
           (patch & entity(as[MessagePatch])) { messagePatch =>
             complete {
-              repo.patch(id, messagePatch) match {
-                case Right(res) => ok(res)
-                case Left(err) => withErrorStatus(err)
+              db.withSession { implicit session =>
+                repo.patch(id, messagePatch) match {
+                  case Right(res) => ok(res)
+                  case Left(err) => withErrorStatus(err)
+                }
               }
             }
           } ~
           (put & entity(as[UnpersistedMessage])) { message =>
             complete {
-              repo.update(id, message) match {
-                case Right(res) => ok(res)
-                case Left(err) => withErrorStatus(err)
+              db.withSession { implicit session =>
+                repo.update(id, message) match {
+                  case Right(res) => ok(res)
+                  case Left(err) => withErrorStatus(err)
+                }
               }
             }
           }
         } ~
         (post & entity(as[UnpersistedMessage])) { message =>
           complete {
-            repo.add(message) match {
-              case Right(res) => ok(res)
-              case Left(err) => withErrorStatus(err)
+            db.withSession { implicit session =>
+              repo.add(message) match {
+                case Right(res) => ok(res)
+                case Left(err) => withErrorStatus(err)
+              }
             }
           }
         } ~
         get {
           parameters("el".as[Int], "before".as[Int]?, "after".as[Int]?) { (el, before, after) =>
             complete {
-              repo.list(el, before, after) match {
-                case Right(messages) => ServiceResponse(ok = true, None, None, Some(messages))
-                case Left(error) => withErrorStatus(error)
+              db.withSession { implicit session =>
+                repo.list(el, before, after) match {
+                  case Right(messages) => ServiceResponse(ok = true, None, None, Some(messages))
+                  case Left(error) => withErrorStatus(error)
+                }
               }
             }
           }
         } ~
         get {
           complete {
-            ServiceResponse(ok = true, None, None, Some(repo.list))
+            db.withSession { implicit session =>
+              ServiceResponse(ok = true, None, None, Some(repo.list))
+            }
           }
         }
       }
@@ -109,6 +123,9 @@ trait Service extends Protocols {
 }
 
 object AkkaHttpMicroservice extends App with Service {
+  import scala.slick.driver.H2Driver.simple._
+  import slick.driver.H2Driver.profile
+
   override implicit val system = ActorSystem()
   override implicit val executor = system.dispatcher
   override implicit val materializer = ActorFlowMaterializer()
@@ -116,9 +133,14 @@ object AkkaHttpMicroservice extends App with Service {
   override val config = ConfigFactory.load()
   override val logger = Logging(system, getClass)
 
-  val db = Database.forURL("jdbc:h2:mem:messages", driver = "org.h2.Driver")
   val maxResults = 1 max config.getInt("messages.maxResults")
-  override val repo = new MessageSlick2Repository(db, maxResults)
+
+  override val db = Database.forURL(
+    config.getString("messagesH2Db.url"),
+    driver = config.getString("messagesH2Db.driver")
+  )
+  override val repo = new MessageSlick2Repository(new Tables(profile), maxResults)
+  repo.createTable(db.createSession())
 
   Http().bindAndHandle(routes, config.getString("http.interface"), config.getInt("http.port"))
 }
