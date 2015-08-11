@@ -30,4 +30,4 @@ libraryDependencies ++= {
   )
 }
 
-Revolver.settings
+Revolver.settings: Seq[sbt.Setting[_]]
