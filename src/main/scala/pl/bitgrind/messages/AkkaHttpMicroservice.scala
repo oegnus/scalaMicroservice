@@ -30,8 +30,7 @@ trait Service extends Protocols {
   implicit val materializer: FlowMaterializer
 
   val db: slick.jdbc.JdbcBackend#DatabaseDef
-  def repo: MessageSlick2Repository
-  def repo3: MessageSlick3Repository
+  def repo: MessageRepository
   def config: Config
   val logger: LoggingAdapter
 
@@ -47,11 +46,11 @@ trait Service extends Protocols {
 
   val routes = {
     logRequestResult("akka-http-microservice") {
-      pathPrefix("slick3") {
+      pathPrefix("list") {
         path(IntNumber) { id =>
           get {
             complete {
-              repo3.find(id).map[ToResponseMarshallable] {
+              repo.find(id).map[ToResponseMarshallable] {
                 case Right(msg) => msg
                 case Left(err) => withErrorStatus(err)
               }
@@ -59,7 +58,7 @@ trait Service extends Protocols {
           } ~
           delete {
             complete {
-              repo3.remove(id).map[ToResponseMarshallable] {
+              repo.remove(id).map[ToResponseMarshallable] {
                 case Right(res) => ok(res)
                 case Left(err) => withErrorStatus(err)
               }
@@ -67,7 +66,7 @@ trait Service extends Protocols {
           } ~
           (patch & entity(as[MessagePatch])) { messagePatch =>
             complete {
-              repo3.patch(id, messagePatch).map[ToResponseMarshallable] {
+              repo.patch(id, messagePatch).map[ToResponseMarshallable] {
                 case Right(res) => ok(res)
                 case Left(err) => withErrorStatus(err)
               }
@@ -75,7 +74,7 @@ trait Service extends Protocols {
           } ~
           (put & entity(as[UnpersistedMessage])) { message =>
             complete {
-              repo3.update(id, message).map[ToResponseMarshallable] {
+              repo.update(id, message).map[ToResponseMarshallable] {
                 case Right(res) => ok(res)
                 case Left(err) => withErrorStatus(err)
               }
@@ -84,7 +83,7 @@ trait Service extends Protocols {
         } ~
         (post & entity(as[UnpersistedMessage])) { message =>
           complete {
-            repo3.add(message).map[ToResponseMarshallable] {
+            repo.add(message).map[ToResponseMarshallable] {
               case Right(res) => ok(res)
               case Left(err) => withErrorStatus(err)
             }
@@ -93,7 +92,7 @@ trait Service extends Protocols {
         get {
           parameters("el".as[Int], "before".as[Int]?, "after".as[Int]?) { (el, before, after) =>
             complete {
-              repo3.list(el, before, after).map[ToResponseMarshallable] {
+              repo.list(el, before, after).map[ToResponseMarshallable] {
                 case Right(messages) => ServiceResponse(ok = true, None, None, Some(messages))
                 case Left(error) => withErrorStatus(error)
               }
@@ -102,81 +101,8 @@ trait Service extends Protocols {
         } ~
         get {
           complete {
-            repo3.list.map[ToResponseMarshallable] {
+            repo.list.map[ToResponseMarshallable] {
               case messages => ServiceResponse(ok = true, None, None, Some(messages))
-            }
-          }
-        }
-      } ~
-      pathPrefix("list") {
-        path(IntNumber) { id =>
-          get {
-            complete {
-              db.withSession { implicit session =>
-                repo.find(id) match {
-                  case Right(msg) => msg
-                  case Left(err) => withErrorStatus(err)
-                }
-              }
-            }
-          } ~
-          delete {
-            complete {
-              db.withSession { implicit session =>
-                repo.remove(id) match {
-                  case Right(res) => ok(res)
-                  case Left(err) => withErrorStatus(err)
-                }
-              }
-            }
-          } ~
-          (patch & entity(as[MessagePatch])) { messagePatch =>
-            complete {
-              db.withSession { implicit session =>
-                repo.patch(id, messagePatch) match {
-                  case Right(res) => ok(res)
-                  case Left(err) => withErrorStatus(err)
-                }
-              }
-            }
-          } ~
-          (put & entity(as[UnpersistedMessage])) { message =>
-            complete {
-              db.withSession { implicit session =>
-                repo.update(id, message) match {
-                  case Right(res) => ok(res)
-                  case Left(err) => withErrorStatus(err)
-                }
-              }
-            }
-          }
-        } ~
-        (post & entity(as[UnpersistedMessage])) { message =>
-          complete {
-            db.withSession { implicit session =>
-              repo.add(message) match {
-                case Right(res) => ok(res)
-                case Left(err) => withErrorStatus(err)
-              }
-            }
-          }
-        } ~
-        get {
-          parameters("el".as[Int], "before".as[Int]?, "after".as[Int]?) { (el, before, after) =>
-            complete {
-              db.withSession { implicit session =>
-                repo.list(el, before, after) match {
-                  case Right(messages) => ServiceResponse(ok = true, None, None, Some(messages))
-                  case Left(error) => withErrorStatus(error)
-                }
-              }
-            }
-          }
-        } ~
-        get {
-          complete {
-            db.withSession { implicit session =>
-              ServiceResponse(ok = true, None, None, Some(repo.list))
             }
           }
         }
@@ -186,7 +112,7 @@ trait Service extends Protocols {
 }
 
 object AkkaHttpMicroservice extends App with Service {
-  import scala.slick.driver.H2Driver.simple._
+  import slick.driver.H2Driver.api._
   import slick.driver.H2Driver.profile
 
   override implicit val system = ActorSystem()
@@ -202,10 +128,8 @@ object AkkaHttpMicroservice extends App with Service {
     config.getString("messagesH2Db.url"),
     driver = config.getString("messagesH2Db.driver")
   )
-  override val repo = new MessageSlick2Repository(new Tables(profile), maxResults)
-  repo.createTable(db.createSession())
 
-  override val repo3 = new MessageSlick3Repository(db, new Tables(profile), maxResults)
+  override val repo = new MessageRepository(db, new Tables(profile), maxResults)
 
   Http().bindAndHandle(routes, config.getString("http.interface"), config.getInt("http.port"))
 }

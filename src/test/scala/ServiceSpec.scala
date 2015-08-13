@@ -6,23 +6,21 @@ import akka.http.scaladsl.model.ContentTypes._
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import org.scalatest._
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
 
 class ServiceSpec extends FlatSpec with BeforeAndAfterEach with Matchers with ScalatestRouteTest with Service {
-  import scala.slick.driver.H2Driver.simple._
+  import slick.driver.H2Driver.api._
   import slick.driver.H2Driver.profile
 
   val maxResults = 30
 
-  val db = Database.forURL("jdbc:h2:mem:messagesTest;DB_CLOSE_DELAY=-1", driver = "org.h2.Driver")
-  override val repo = new MessageSlick2Repository(new Tables(profile), maxResults)
-  repo.createTable(db.createSession())
-
-  override val repo3 = new MessageSlick3Repository(db, new Tables(profile), maxResults)
+  val db = Database.forURL("jdbc:h2:mem:messagesSlick3Test;DB_CLOSE_DELAY=-1", driver = "org.h2.Driver")
+  override val repo = new MessageRepository(db, new Tables(profile), maxResults)
+  Await.ready(repo.createTable, Duration.Inf)
 
   override def beforeEach() {
-    db.withSession { implicit session =>
-      repo.loadFixtures(fixtures)
-    }
+    Await.ready(repo.loadFixtures(fixtures), Duration.Inf)
   }
 
   override def testConfigSource = "akka.loglevel = WARNING"

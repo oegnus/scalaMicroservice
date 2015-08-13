@@ -2,12 +2,11 @@ package pl.bitgrind.messages
 
 import pl.bitgrind.messages.MessageValidation._
 import pl.bitgrind.messages.Messages._
-
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scalaz._
 
-class MessageSlick3Repository(db: slick.jdbc.JdbcBackend#DatabaseDef, t: Tables, maxResults: Int) {
+class MessageRepository(db: slick.jdbc.JdbcBackend#DatabaseDef, t: Tables, maxResults: Int) {
   import t.profile.api._
 
   def ok = Right(Result(None, None))
