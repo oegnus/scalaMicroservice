@@ -4,7 +4,7 @@ import pl.bitgrind.messages.Messages._
 import slick.driver._
 
 class Tables(val profile: JdbcProfile) {
-  import profile.simple._
+  import profile.api._
 
   class MessagesTable(tag: Tag) extends Table[Message](tag, "MESSAGES") {
     def id = column[MessageId]("MSG_ID", O.PrimaryKey, O.AutoInc)

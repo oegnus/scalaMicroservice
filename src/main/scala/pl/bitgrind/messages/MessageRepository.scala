@@ -23,20 +23,23 @@ class MessageRepository(db: slick.jdbc.JdbcBackend#DatabaseDef, t: Tables, maxRe
 
   def list(msgId: MessageId, beforeOpt: Option[Int], afterOpt: Option[Int]): Future[Either[Result, List[Message]]] = {
     val sortedQuery = t.messages.sortBy(_.id.asc)
-    db.run(sortedQuery.filter(_.id === msgId).result.headOption) flatMap {
+    db.run(
+      sortedQuery.filter(_.id === msgId).result.headOption
+    ) flatMap {
       case Some(m) =>
-        val indexQuery = sortedQuery.filter(_.id < msgId).length.result
-        db.run(indexQuery) flatMap { index =>
+        db.run(
+          sortedQuery.filter(_.id < msgId).length.result
+        ) flatMap { index =>
           val before = index min (0 max beforeOpt.getOrElse(0))
           val after = 0 max afterOpt.getOrElse(0)
           val range = before + 1 + after
           // make sure that element is in range:
-          val validBefore: Int = if (range > maxResults) before * maxResults / range else before
-          val offset = index - validBefore
-          val pageSize = (validBefore + 1 + after) min maxResults
-          db.run(sortedQuery.drop(offset).take(pageSize).result) flatMap { res =>
-            Future.successful(Right(res.toList))
-          }
+          val adjustedBefore: Int = if (range > maxResults) before * maxResults / range else before
+          val offset = index - adjustedBefore
+          val pageSize = (adjustedBefore + 1 + after) min maxResults
+          db.run(
+            sortedQuery.drop(offset).take(pageSize).result
+          ) flatMap { res => Future.successful(Right(res.toList)) }
         }
       case None =>
         Future.successful(errNotFound)
