@@ -12,6 +12,7 @@ class MessageSlick2Repository(t: Tables, maxResults: Int) {
   def ok = Right(Result(None, None))
   def errNotFound = Left(Result(Some(NOT_FOUND), None))
   def errValidation(validationErrors: List[String]) = Left(Result(Some(VALIDATION), Some(validationErrors)))
+  def err(errors: String) = Left(Result(Some(NOT_FOUND), Some(List(errors))))
 
   def find(msgId: MessageId)(implicit session: S): Either[Result, Message] =
     t.messages.filter(_.id === msgId).firstOption match {

@@ -4,6 +4,7 @@ import akka.actor.ActorSystem
 import akka.event.{LoggingAdapter, Logging}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
+import akka.http.scaladsl.marshalling.ToResponseMarshallable
 import akka.http.scaladsl.model.StatusCode
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.Directives._
@@ -28,8 +29,9 @@ trait Service extends Protocols {
   implicit def executor: ExecutionContextExecutor
   implicit val materializer: FlowMaterializer
 
-  val db: scala.slick.jdbc.JdbcBackend#DatabaseDef
+  val db: slick.jdbc.JdbcBackend#DatabaseDef
   def repo: MessageSlick2Repository
+  def repo3: MessageSlick3Repository
   def config: Config
   val logger: LoggingAdapter
 
@@ -45,6 +47,67 @@ trait Service extends Protocols {
 
   val routes = {
     logRequestResult("akka-http-microservice") {
+      pathPrefix("slick3") {
+        path(IntNumber) { id =>
+          get {
+            complete {
+              repo3.find(id).map[ToResponseMarshallable] {
+                case Right(msg) => msg
+                case Left(err) => withErrorStatus(err)
+              }
+            }
+          } ~
+          delete {
+            complete {
+              repo3.remove(id).map[ToResponseMarshallable] {
+                case Right(res) => ok(res)
+                case Left(err) => withErrorStatus(err)
+              }
+            }
+          } ~
+          (patch & entity(as[MessagePatch])) { messagePatch =>
+            complete {
+              repo3.patch(id, messagePatch).map[ToResponseMarshallable] {
+                case Right(res) => ok(res)
+                case Left(err) => withErrorStatus(err)
+              }
+            }
+          } ~
+          (put & entity(as[UnpersistedMessage])) { message =>
+            complete {
+              repo3.update(id, message).map[ToResponseMarshallable] {
+                case Right(res) => ok(res)
+                case Left(err) => withErrorStatus(err)
+              }
+            }
+          }
+        } ~
+        (post & entity(as[UnpersistedMessage])) { message =>
+          complete {
+            repo3.add(message).map[ToResponseMarshallable] {
+              case Right(res) => ok(res)
+              case Left(err) => withErrorStatus(err)
+            }
+          }
+        } ~
+        get {
+          parameters("el".as[Int], "before".as[Int]?, "after".as[Int]?) { (el, before, after) =>
+            complete {
+              repo3.list(el, before, after).map[ToResponseMarshallable] {
+                case Right(messages) => ServiceResponse(ok = true, None, None, Some(messages))
+                case Left(error) => withErrorStatus(error)
+              }
+            }
+          }
+        } ~
+        get {
+          complete {
+            repo3.list.map[ToResponseMarshallable] {
+              case messages => ServiceResponse(ok = true, None, None, Some(messages))
+            }
+          }
+        }
+      } ~
       pathPrefix("list") {
         path(IntNumber) { id =>
           get {
@@ -141,6 +204,8 @@ object AkkaHttpMicroservice extends App with Service {
   )
   override val repo = new MessageSlick2Repository(new Tables(profile), maxResults)
   repo.createTable(db.createSession())
+
+  override val repo3 = new MessageSlick3Repository(db, new Tables(profile), maxResults)
 
   Http().bindAndHandle(routes, config.getString("http.interface"), config.getInt("http.port"))
 }
